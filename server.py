@@ -13,7 +13,6 @@ import firebase_admin
 from firebase_admin import credentials, db
 import socket
 
-
 # Flask app configuration
 app_video = Flask(__name__)
 app_audio = Flask(__name__)
@@ -34,103 +33,66 @@ firebase_admin.initialize_app(cred, {
     'databaseURL': 'https://smart-baby-nest-default-rtdb.asia-southeast1.firebasedatabase.app/'
 })
 
-# Get the local IP address of the server
 hostname = socket.gethostname()  
 local_ip = socket.gethostbyname(hostname)  
 
 IP = (f"http://{local_ip}:5000/video_feed")
 ref= db.reference('/')
 ref.update({
-    "Server_IP":IP
+    "Server_IP": IP
 })
 
-# Check the status of Manual_control_status from Firebase periodically
-manual_control_status = False
-
-def check_manual_control():
-    global manual_control_status
-    ref = db.reference('/Manual_control_status')
-    while True:
-        manual_control_status = ref.get()
-        print("Manual control status:", manual_control_status)
-        if manual_control_status:
-            print("Manual control is enabled! Sending signal to Raspberry Pi...")
-        time.sleep(10)
-        
-
-
-mic_disabled = False
-mic_lock = threading.Lock()
-
-# Disable the microphone for 30 seconds 
-def disable_mic():
-    global mic_disabled
-    with mic_lock:
-        mic_disabled = True
-    print("Microphone disabled for 30 seconds...")
-    time.sleep(30) 
-    with mic_lock:
-        mic_disabled = False
-    print("Microphone re-enabled.")
-
-# Record audio for 6 seconds
+# Function to async record audio
 def record_audio(filename="detected_audio.wav", duration=6, sample_rate=44100, channels=2):
-    global mic_disabled
-    with mic_lock:
-        if mic_disabled:
-            print("Microphone is disabled, skipping recording.")
-            return None  # Skip recording if the microphone is disabled
-
     print("Recording audio...")
     audio = sd.rec(int(duration * sample_rate), samplerate=sample_rate, channels=channels, dtype='int16')
     sd.wait()
     wavio.write(filename, audio, sample_rate, sampwidth=2)
     return filename
 
-
-last_crying_update_time = 0  
-
+# Function to process audio         
 def process_audio(filename):
-    global last_crying_update_time  
-
-    if filename is None:  
-        return "Skipped", "No Recording"
-    
     try:
         print("Processing audio file...")
         y, sr = librosa.load(filename, sr=None)
         energy = np.sum(y**2) / len(y)  
         rms = librosa.feature.rms(y=y)[0].mean()  
         zcr = librosa.feature.zero_crossing_rate(y)[0].mean()  
-        
-        current_time = time.time()
 
-
-        if (energy < 1e-5 and rms < 0.01) or (zcr < 0.02 and rms < 0.015):
+        # Validation of silence based on energy and rms
+        if (energy < 1e-5 and rms < 0.01 and zcr < 0.02) or (zcr < 0.02 and rms < 0.015):
             print("Silence detected.")
-            prediction, reason = "Silence", "No Reason"
-        else:
-            prediction = predict_cry(filename)  
-            if prediction == 'Crying':
-                print("Crying detected! Disabling microphone and analyzing reason...")
-                threading.Thread(target=disable_mic, daemon=True).start()
-                reason = predict_cry_reason(filename)
-            else:
-                print("Other sound detected.")
-                prediction, reason = "Other Sound", "No Reason"
-        
-        # Check if 60 seconds have passed since the last update
-        if current_time - last_crying_update_time >= 60:
+            prediction = "Silence"
+            reason = "No Reason"
+            
             ref = db.reference("/")
             ref.update({
-                "crying_status": prediction == "Crying",
-                "Crying_reasons": reason,
-                "Manual_control_status": prediction == "Crying"
+                "crying_status": False,
+                "Crying_reasons": reason
             })
-            last_crying_update_time = current_time
+            return "Silence", "No Reason"
+        
+        prediction = predict_cry(filename)
+        if prediction == 'Crying':
+            print("Crying detected! Analyzing reason...")
+            reason = predict_cry_reason(filename)
+            
+            ref = db.reference("/")
+            ref.update({
+                "crying_status": True,
+                "Crying_reasons": reason
+            })
         else:
-            print("Skipping update: 60 seconds have not passed yet.")
-
+            print("Other sound detected.")
+            prediction = "Other Sound"
+            reason = "No Reason"
+            
+            ref = db.reference("/")
+            ref.update({
+                "crying_status": False,
+                "Crying_reasons": reason
+            })
+        
         return prediction, reason
     except Exception as e:
         print(f"Audio processing error: {e}")
@@ -138,8 +100,7 @@ def process_audio(filename):
     finally:
         if os.path.exists(filename):
             os.remove(filename)
-            print("Audio is processed and deleted.")
-
+            print("Audio is processed.")
 
 def predict_cry(file_path):
     mfcc = process_audio_mfcc(file_path)
@@ -208,8 +169,7 @@ def video_feed():
         global last_frame
         while True:
             if last_frame is not None:
-                #Convert the frame into JPEG
-                last_frame = cv2.resize(last_frame, (1300,2400))
+                # Convert the frame into JPEG
                 ret, jpeg = cv2.imencode('.jpg', last_frame)
                 if ret:
                     # Send the image via HTTP as JPEG
@@ -218,15 +178,15 @@ def video_feed():
             time.sleep(0.1)  
     return Response(generate(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
-# Audio analysis to detect cryingand other sounds to send the results to the raspberry pi 
+# Audio analysis to detect crying and other sounds
 @app_audio.route('/analyze_audio', methods=['POST'])
 def analyze_audio():
     print("Starting audio analysis...")
     filename = record_audio()
     cry_prediction, cry_reason = process_audio(filename)
-    return jsonify({"Crying": "yes" if cry_prediction == "Crying" or manual_control_status else False, "reason": cry_reason})
+    return jsonify({"Crying": "yes" if cry_prediction == "Crying" else False, "reason": cry_reason})
 
-# Sensor data to receive temperature and humidity data from the raspberry pi
+# Sensor data to receive temperature and humidity data from the Raspberry Pi
 @app_sensor.route('/upload_sensor_data', methods=['POST'])
 def upload_sensor_data():
     data = request.json
@@ -245,25 +205,14 @@ def upload_sensor_data():
     sensor_data = {
         'temperature': temperature,
         'humidity': humidity,
-        # 'timestamp': time.time()  # add timestamp to each measurement
     }
-    # ref.push(sensor_data)  # add new data to the database
     ref.update(sensor_data)
     
     return jsonify({"status": "success"}), 200
 
-
 # Run the Flask app
 def run_app(app, port):
     app.run(host='0.0.0.0', port=port)
-    
-def schedule_audio_recording():
-    """Function to schedule audio recording every 30 seconds"""
-    threading.Timer(30, schedule_audio_recording).start()  # Schedule the next execution
-    filename = record_audio()
-    if filename:
-        cry_prediction, cry_reason = process_audio(filename)
-        print(f"Cry Detection: {cry_prediction}, Reason: {cry_reason}")
 
 
 # Start the Flask app
