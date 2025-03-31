@@ -1,0 +1,9 @@
+Flask
+numpy
+opencv-python
+ultralytics
+librosa
+sounddevice
+wavio
+tensorflow
+firebase-admin
