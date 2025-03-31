@@ -24,6 +24,10 @@
 
 <p align="left"><h3 align="left">🔹Hardware</h3>Raspberry Pi (as the main controller).<br><br>Microphone to capture baby sounds.<br><br>Camera for live streaming.<br><br>DHT sensor to measure temperature and humidity.<br><br>Vibration motors to rock the crib.<br><br>Speakers to play music.<br><br>Moving toys to grab the baby’s attention.<br><br><h3 align="left">🔹Software</h3>Flutter for mobile app development.<br><br>Firebase for data storage and notifications.<br><br>Python for AI-based sound analysis.<br><br>Flask Server to handle communication between Raspberry Pi and the app.</p>
 
+
+![image](https://github.com/user-attachments/assets/37fb615b-14d7-4f6a-845b-04486ef5129b)
+
+
 ###
 
 <h2 align="left">🔍 How the Smart Crib Works</h2>
@@ -31,5 +35,9 @@
 ###
 
 <p align="left"><h3 align="left">1- Data Capture:</h3>Microphone captures the baby’s cries.<br><br>DHT sensor measures crib temperature and humidity.<br><br>Camera provides a live video stream for monitoring.<br><br><h3 align="left">2- Data Analysis:</h3>Data is sent to the Raspberry Pi, which checks the baby’s condition.<br><br>If the baby is crying, the sound data is sent to a server for AI analysis.<br><br><h3 align="left">3- Response Processing:</h3>The results are sent to Firebase, enabling the app to display notifications and updates.<br><br>Parents can watch the live stream and check the baby’s status via the app.<br><br>In manual mode, parents can control music, toys, or crib rocking through the app.<br><br><h3 align="left">4- Automatic Response:</h3>If the system is in automatic mode, the crib will react based on sound analysis, such as:<br>✅ Playing music to soothe the baby.<br>✅ Activating toys to grab the baby’s attention.<br>✅ Rocking the crib to help the baby sleep.</p>
+
+
+![image](https://github.com/user-attachments/assets/678336fd-804d-4237-9293-7c7a753db81d)
+
 
 ###
