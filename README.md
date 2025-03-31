@@ -70,6 +70,10 @@
 
 ###
 
+![image](https://github.com/user-attachments/assets/7f466796-3c11-4f19-9274-a3f903918a0b)
+
+###
+
 <h3 align="left">Cry reasons detection model</h3>
 
 ###
@@ -83,6 +87,10 @@
 ###
 
 <p align="left">Dataset: https://www.kaggle.com/datasets/mohammadalshaikh00/cry-reasons-detection-dataset</p>
+
+###
+
+![image](https://github.com/user-attachments/assets/042f0cf0-37b1-4bbd-b2c8-4d87fd107191)
 
 ###
 ###
