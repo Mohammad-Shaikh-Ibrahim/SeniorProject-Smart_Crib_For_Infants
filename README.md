@@ -53,4 +53,37 @@
 <p align="left">✅ https://github.com/Mohammad-Shaikh-Ibrahim/CrySense<br>✅ https://github.com/Mohammad-Shaikh-Ibrahim/babycry<br>✅ https://github.com/Mohammad-Shaikh-Ibrahim/baby_cry_detection</p>
 
 ###
+
+<h3 align="left">Cry detection model</h3>
+
+###
+
+<p align="left">We built a model to recognize and analyze sounds that can distinguish crying from other sounds, then trained it on 80%, epochs =50 and tested it on 20% The accuracy we got was 97.7%</p>
+
+###
+
+<p align="left">The Model: https://www.kaggle.com/models/mohammadalshaikh00/cry-detection-model</p>
+
+###
+
+<p align="left">Dataset: https://www.kaggle.com/datasets/mohammadalshaikh00/cry-detection-dataset</p>
+
+###
+
+<h3 align="left">Cry reasons detection model</h3>
+
+###
+
+<p align="left">We built a model to recognize and analyze crying causes so that it could distinguish between each crying sound and classify it into one of the nine causes mentioned, then we trained it on 80%, epochs =50 , and tested it on 20%  <br>The accuracy we obtained was 87.16%</p>
+
+###
+
+<p align="left">The Model: https://www.kaggle.com/models/mohammadalshaikh00/cry-reasons-detection-model</p>
+
+###
+
+<p align="left">Dataset: https://www.kaggle.com/datasets/mohammadalshaikh00/cry-reasons-detection-dataset</p>
+
+###
+###
 ###
