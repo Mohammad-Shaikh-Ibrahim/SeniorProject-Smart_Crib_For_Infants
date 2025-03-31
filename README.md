@@ -41,3 +41,16 @@
 
 
 ###
+
+<h2 align="left">AI Models</h2>
+
+###
+
+<p align="left">If you are interested in AI models, you can check out these repositories:</p>
+
+###
+
+<p align="left">✅ https://github.com/Mohammad-Shaikh-Ibrahim/CrySense<br>✅ https://github.com/Mohammad-Shaikh-Ibrahim/babycry<br>✅ https://github.com/Mohammad-Shaikh-Ibrahim/baby_cry_detection</p>
+
+###
+###
