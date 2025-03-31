@@ -94,4 +94,15 @@
 
 ###
 ###
+<h3 align="left">YOLO v11</h3>
+
+###
+
+<p align="left">We used YOLO to detect if the baby in the crib or not</p>
+
+###
+
+<p align="left">The Model: https://docs.ultralytics.com/models/yolo11/</p>
+
+###
 ###
